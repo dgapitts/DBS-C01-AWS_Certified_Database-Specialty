@@ -1,5 +1,15 @@
 ## AWS CLI - common DynamoDB operations
 
+###
+
+```
+Table name: PetInventory
+Primary key:
+Partition key: pet_species, String
+Check Add sort key
+Sort key: pet_id, Number
+```
+
 ### Create a DynamoDB Table 
 ```
 aws dynamodb\
