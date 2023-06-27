@@ -1,7 +1,3 @@
-redis.md
-
-
-
 ### Overview of ElastiCache for Redis
 
 Highlights from [Redis User Guide - Overview](https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/WhatIs.html)
@@ -118,3 +114,61 @@ Node size v. number of nodes – Because a Redis (cluster mode disabled) cluster
  
 
 Reads v. writes – If the primary load on your cluster is applications reading data, you can scale a Redis (cluster mode disabled) cluster by adding and deleting read replicas. However, there is a maximum of 5 read replicas. If the load on your cluster is write-heavy, you can benefit from the additional write endpoints of a Redis (cluster mode enabled) cluster with multiple shards.
+
+
+
+###   Improving backup performance
+The following are guidelines for improving backup performance.
+* Set the reserved-memory-percent parameter – To mitigate excessive paging, we recommend that you set the reserved-memory-percent parameter. This parameter prevents Redis from consuming all of the node's available memory, and can help reduce the amount of paging. You might also see performance improvements by simply using a larger node. For more information about the reserved-memory and reserved-memory-percent parameters, see Managing Reserved Memory.
+* Create backups from a read replica – If you are running Redis in a node group with more than one node, you can take a backup from the primary node or one of the read replicas. Because of the system resources required during BGSAVE, we recommend that you create backups from one of the read replicas. While the backup is being created from the replica, the primary node remains unaffected by BGSAVE resource requirements. The primary node can continue serving requests without slowing down.
+
+
+### Backup constraints
+Consider the following constraints when planning or making backups:
+* At this time, backup and restore are supported only for clusters running on Redis.
+* For Redis (cluster mode disabled) clusters, backup and restore aren't supported on cache.t1.micro nodes. All other cache node types are supported.
+* For Redis (cluster mode enabled) clusters, backup and restore are supported for all node types.
+* During any contiguous 24-hour period, you can create no more than 20 manual backups per node in the cluster.
+* Redis (cluster mode enabled) only supports taking backups on the cluster level (for the API or CLI, the replication group level). Redis (cluster mode enabled) doesn't support taking backups at the shard level (for the API or CLI, the node group level).
+* During the backup process, you can't run any other API or CLI operations on the cluster.
+* If using clusters with data tiering, you cannot export a backup to Amazon S3.
+* You can restore a backup of a cluster using the r6gd node type only to clusters using the r6gd node type.
+
+
+### Redis vs Memcached
+
+Sub-millisecond latency
+Both Redis and Memcached support sub-millisecond response times. By storing data in-memory they can read data more quickly than disk based databases.
+
+Developer ease of use
+Both Redis and Memcached are syntactically easy to use and require a minimal amount of code to integrate into your application.
+
+Data partitioning
+Both Redis and Memcached allow you to distribute your data among multiple nodes. This allows you to scale out to better handle more data when demand grows.
+
+Support for a broad set of programming languages
+Both Redis and Memcached have many open-source clients available for developers. Supported languages include Java, Python, PHP, C, C++, C#, JavaScript, Node.js, Ruby, Go and many others.
+
+Advanced data structures
+In addition to strings, Redis supports lists, sets, sorted sets, hashes, bit arrays, and hyperloglogs. Applications can use these more advanced data structures to support a variety of use cases. For example, you can use Redis Sorted Sets to easily implement a game leaderboard that keeps a list of players sorted by their rank.
+
+Multithreaded architecture
+Since Memcached is multithreaded, it can make use of multiple processing cores. This means that you can handle more operations by scaling up compute capacity.
+
+Snapshots
+With Redis you can keep your data on disk with a point in time snapshot which can be used for archiving or recovery.
+
+Replication
+Redis lets you create multiple replicas of a Redis primary. This allows you to scale database reads and to have highly available clusters.
+
+Transactions
+Redis supports transactions which let you execute a group of commands as an isolated and atomic operation.
+
+Pub/Sub
+Redis supports Pub/Sub messaging with pattern matching which you can use for high performance chat rooms, real-time comment streams, social media feeds, and server intercommunication.
+
+Lua scripting
+Redis allows you to execute transactional Lua scripts. Scripts can help you boost performance and simplify your application.
+
+Geospatial support
+Redis has purpose-built commands for working with real-time geospatial data at scale. You can perform operations like finding the distance between two elements (for example people or places) and finding all elements within a given distance of a point.
