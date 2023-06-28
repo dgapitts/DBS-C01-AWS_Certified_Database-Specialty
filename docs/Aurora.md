@@ -1,4 +1,12 @@
-### Aurora Auto Scaling has the following components:
+
+
+
+### Aurora Auto Scaling
+
+You define and apply a scaling policy to an Aurora DB cluster. The scaling policy defines the minimum and maximum number of Aurora Replicas that Aurora Auto Scaling can manage. Based on the policy, Aurora Auto Scaling adjusts the number of Aurora Replicas up or down in response to actual workloads, determined by using Amazon CloudWatch metrics and target values.
+
+
+#### Aurora Auto Scaling has the following components:
 
 A service-linked role
 A target metric
@@ -33,3 +41,14 @@ You can't restore a cross-Region snapshot of a backtrack-enabled cluster in an A
 If you perform an in-place upgrade for a backtrack-enabled cluster from Aurora MySQL version 2 to version 3, you can't backtrack to a point in time before the upgrade happened.
 
 Backtrack is not available for Aurora PostgreSQL.
+
+
+### Cluster cache management
+The cluster cache management (CCM) feature improves the performance of the new primary/writer instance after failover occurs. The replica preemptively reads frequently accessed buffers cached from the  primary/writer instance. With CCM, you can designate a specific Aurora PostgreSQL replica as the failover target. CCM ensures that data in the designated replica’s cache is synchronized with the data in the primary DB instance’s cache.
+
+
+
+### Load balancing with the reader endpoint
+
+Because the reader endpoint contains all Aurora Replicas, it can provide DNS-based, round robin load balancing for new connections. Every time you resolve the reader endpoint, you'll get an instance IP that you can connect to, chosen in round robin fashion.
+

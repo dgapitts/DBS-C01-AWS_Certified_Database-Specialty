@@ -15,6 +15,13 @@ You can create on-demand backups and enable point-in-time recovery for your Amaz
 DynamoDB allows you to delete expired items from tables automatically to help you reduce storage usage and the cost of storing data that is no longer relevant. For more information, see Expiring items by using DynamoDB Time to Live (TTL).
 
 
+### Highlights 
+
+#### Read capacity units and write capacity units
+For provisioned mode tables, you specify throughput capacity in terms of read capacity units (RCUs) and write capacity units (WCUs):
+
+One read capacity unit represents one strongly consistent read per second, or two eventually consistent reads per second, for an item up to 4 KB in size. Transactional read requests require two read capacity units to perform one read per second for items up to 4 KB. If you need to read an item that is larger than 4 KB, DynamoDB must consume additional read capacity units. The total number of read capacity units required depends on the item size, and whether you want an eventually consistent or strongly consistent read. For example, if your item size is 8 KB, you require 2 read capacity units to sustain one strongly consistent read per second, 1 read capacity unit if you choose eventually consistent reads, or 4 read capacity units for a transactional read request. For more information, see Capacity unit consumption for reads.
+
 
 
 
@@ -33,6 +40,10 @@ Key Schema
 The primary key of a global secondary index can be either simple (partition key) or composite (partition key and sort key).	
 The primary key of a local secondary index must be composite (partition key and sort key).
 
+##### Use indexes efficiently
+Keep the number of indexes to a minimum. Don't create secondary indexes on attributes that you don't query often. Indexes that are seldom used contribute to increased storage and I/O costs without improving application performance.
+
+
 #### Key Attributes	
 The index partition key and sort key (if present) can be any base table attributes of type string, number, or binary.	
 The partition key of the index is the same attribute as the partition key of the base table. The sort key can be any base table attribute of type string, number, or binary.
@@ -46,6 +57,20 @@ Read Consistency	Queries on global secondary indexes support eventual consistenc
 Provisioned Throughput Consumption	Every global secondary index has its own provisioned throughput settings for read and write activity. Queries or scans on a global secondary index consume capacity units from the index, not from the base table. The same holds true for global secondary index updates due to table writes. A global secondary index associated with global tables consumes write capacity units.	Queries or scans on a local secondary index consume read capacity units from the base table. When you write to a table its local secondary indexes are also updated, and these updates consume write capacity units from the base table. A local secondary index associated with global tables consumes replicated write capacity units.
 Projected Attributes	With global secondary index queries or scans, you can only request the attributes that are projected into the index. DynamoDB does not fetch any attributes from the table.	If you query or scan a local secondary index, you can request attributes that are not projected in to the index. DynamoDB automatically fetches those attributes from the table.
 
+### Projection Expressions
+
+To read data from a table, you use operations such as GetItem, Query, or Scan. Amazon DynamoDB returns all the item attributes by default. To get only some, rather than all of the attributes, use a projection expression.
+
+A projection expression is a string that identifies the attributes that you want. To retrieve a single attribute, specify its name. For multiple attributes, the names must be comma-separated.
+
+
+aws dynamodb get-item \
+    --table-name ProductCatalog \
+    --key file://key.json \
+    --projection-expression "Description, RelatedItems[0], ProductReviews.FiveStar"
+    
+
+    
 ####   Read/write capacity mode
 
 Amazon DynamoDB has two read/write capacity modes for processing reads and writes on your tables:
@@ -269,6 +294,11 @@ DAX also supports encryption in transit, ensuring that all requests and response
 
 
 
+### DAX Request rate limiting and ThrottlingException
+
+If the number of requests sent to DAX exceeds the capacity of a node, DAX limits the rate at which it accepts additional requests by returning a ThrottlingException. DAX continuously evaluates your CPU utilization to determine the volume of requests it can process while maintaining a healthy cluster state.
+
+
 
 ### DynamoDB PointInTimeRecovery highlights
 
@@ -395,5 +425,8 @@ The following JSON shows the relevant portion of a single streams record.
 Using DynamoDB Streams and Lambda to archive TTL deleted items
 
 Combining DynamoDB Time to Live (TTL), DynamoDB Streams, and AWS Lambda can help simplify archiving data, reduce DynamoDB storage costs, and reduce code complexity. Using Lambda as the stream consumer provides many advantages, most notably the cost reduction compared to other consumers such as Kinesis Client Library (KCL).
+
+
+
 
 
